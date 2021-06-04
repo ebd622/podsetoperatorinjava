@@ -59,7 +59,7 @@ public class PodSetController {
 
             @Override
             public void onDelete(PodSet podSet, boolean b) {
-                // Do nothing
+                deletePods(podSet);
             }
         });
 
@@ -82,6 +82,16 @@ public class PodSetController {
                 // Do nothing
             }
         });
+    }
+
+    private void deletePods(PodSet podSet) {
+        List<String> pods = podCountByLabel(APP_LABEL, podSet.getMetadata().getName());
+        if (pods.isEmpty()) {
+            return;
+        }
+        for(String podName : pods){
+            kubernetesClient.pods().inNamespace(podSet.getMetadata().getNamespace()).withName(podName).delete();
+        }
     }
 
     public void run() {
